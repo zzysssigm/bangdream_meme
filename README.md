@@ -20,5 +20,9 @@ npm run build
 npm run lint
 ```
 
+预览效果如下：
+
+![](/meme-generator/test.png)
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
