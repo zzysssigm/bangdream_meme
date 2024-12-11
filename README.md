@@ -22,7 +22,7 @@ npm run lint
 
 预览效果如下：
 
-![](/bangdream_meme/test.png)
+![](/test.png)
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
