@@ -4,7 +4,7 @@
             <!-- 图像显示区域 -->
             <div class="canvas-wrapper">
                 <div class="canvas" ref="canvasRef">
-                    <img :src="imageSrc" alt="meme" class="background" />
+                    <img :src="imageSrc" alt="meme" class="background" :style="imageStyle" @load="adjustImageSize" />
                     <div class="text-overlay" :style="{
                         transform: `translate(${xOffset}px, ${-yOffset}px) rotate(${rotate}deg)`
                     }">
@@ -21,6 +21,7 @@
                         </span>
                     </div>
                 </div>
+
             </div>
 
             <!-- Y轴滑杆 -->
@@ -33,6 +34,8 @@
 
         <!-- 其他滑杆设置区域 -->
         <div class="controls left-align">
+            <button @click="isSelectorVisible = true">选择表情包</button>
+
             <label for="xOffset">X Position:</label>
             <input id="xOffset" type="range" v-model="xOffset" min="-250" max="250" @input="saveSettings" />
 
@@ -76,8 +79,12 @@
 
             <button @click="captureScreenshot">Copy to Clipboard</button>
             <button @click="saveScreenshotToGallery">Save to Gallery</button>
-
+            <button @click="resetToDefaults">恢复默认配置</button>
         </div>
+
+        <!-- 图片选择弹窗 -->
+        <ImageSelector :isVisible="isSelectorVisible" :images="imageList" @close="isSelectorVisible = false"
+            @select="updateImage" />
     </div>
 </template>
 
@@ -85,19 +92,59 @@
 /* eslint-disable */
 import { ref, onMounted } from "vue";
 import html2canvas from "html2canvas";
+import ImageSelector from "@/components/ImageSelector.vue";
+
+// 动态读取 @/image 目录下的所有图片
+const requireImages = require.context("@/image", false, /\.(png|jpe?g|gif|svg)$/);
+const imageList = requireImages.keys().map((key) => requireImages(key));
 
 export default {
     name: "MemeGenerator",
+    components: { ImageSelector },
     setup() {
-        // 图片相关变量
-        const imageSrc = ref(require('@/image/qishen.jpg'));
+        // 默认选中的图片
+        const imageSrc = ref(imageList[0]);
+
+        const imageStyle = ref({}); // 用于动态设置图片宽高
+        const maxWidth = 500; // 最大宽度
+        const maxHeight = 400; // 最大高度
+
+        // 调整图片尺寸（包括等比放大和缩小）
+    const adjustImageSize = (event) => {
+      const img = event.target;
+      const { naturalWidth, naturalHeight } = img;
+
+      // 计算宽高比例
+      const widthRatio = maxWidth / naturalWidth;
+      const heightRatio = maxHeight / naturalHeight;
+
+      // 取较小的比例，确保等比缩放
+      const scale = Math.min(widthRatio, heightRatio);
+
+      // 计算放大后的宽高
+      const newWidth = naturalWidth * scale;
+      const newHeight = naturalHeight * scale;
+
+      imageStyle.value = {
+        width: `${newWidth}px`,
+        height: `${newHeight}px`,
+      };
+    };
+
+        // 控制图片选择器显示
+        const isSelectorVisible = ref(false);
+
+        // 更新选中的图片
+        const updateImage = (selectedImage) => {
+            imageSrc.value = selectedImage;
+        };
 
         // 滑杆和文本相关变量
         const rotate = ref(0);
         const fontSize = ref(35);
         const spacing = ref(0);
-        const xOffset = ref(0);
-        const yOffset = ref(0);
+        const xOffset = ref(-110);
+        const yOffset = ref(-100);
         const fontWeight = ref(600);
         const wrapText = ref(false);
         const text = ref("BanGDream!");
@@ -108,17 +155,46 @@ export default {
         // 字体颜色
         const fontColor = ref("#ffffff");
 
+        // 默认配置
+        const defaultSettings = {
+            rotate: 0,
+            fontSize: 35,
+            spacing: 0,
+            xOffset: -110,
+            yOffset: -100,
+            fontWeight: 600,
+            wrapText: false,
+            text: "BanGDream!",
+            fontFamily: "Microsoft YaHei, sans-serif",
+            fontColor: "#ffffff",
+        };
+
+        // 恢复默认配置
+        const resetToDefaults = () => {
+            rotate.value = defaultSettings.rotate;
+            fontSize.value = defaultSettings.fontSize;
+            spacing.value = defaultSettings.spacing;
+            xOffset.value = defaultSettings.xOffset;
+            yOffset.value = defaultSettings.yOffset;
+            fontWeight.value = defaultSettings.fontWeight;
+            wrapText.value = defaultSettings.wrapText;
+            text.value = defaultSettings.text;
+            fontFamily.value = defaultSettings.fontFamily;
+            fontColor.value = defaultSettings.fontColor;
+
+            // 可选：同步更新本地存储
+            saveSettings();
+        };
+
         const captureScreenshot = async () => {
             const canvasWrapper = document.querySelector(".canvas-wrapper");
 
             try {
-                // 使用 html2canvas 截取 canvas-wrapper 区域
                 const canvas = await html2canvas(canvasWrapper, {
-                    useCORS: true, // 确保跨域资源被捕获
-                    backgroundColor: null, // 背景透明
+                    useCORS: true,
+                    backgroundColor: null,
                 });
 
-                // 将截图保存到剪贴板
                 canvas.toBlob((blob) => {
                     const item = new ClipboardItem({ "image/png": blob });
                     navigator.clipboard.write([item]).then(
@@ -135,13 +211,11 @@ export default {
             const canvasWrapper = document.querySelector(".canvas-wrapper");
 
             try {
-                // 使用 html2canvas 截取 canvas-wrapper 区域
                 const canvas = await html2canvas(canvasWrapper, {
                     useCORS: true,
                     backgroundColor: null,
                 });
 
-                // 将截图保存为图片
                 const link = document.createElement("a");
                 link.download = "meme.png";
                 link.href = canvas.toDataURL("image/png");
@@ -151,84 +225,6 @@ export default {
             }
         };
 
-        // 复制到剪切板
-        const copyToClipboard = () => {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            const background = document.querySelector(".background");
-
-            // 设置 canvas 的宽高为图片的原始分辨率
-            canvas.width = background.naturalWidth;
-            canvas.height = background.naturalHeight;
-
-            // 设置原点为图片中心
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-
-            // 绘制背景图（相对于中心原点）
-            ctx.drawImage(
-                background,
-                -canvas.width / 2,
-                -canvas.height / 2,
-                canvas.width,
-                canvas.height
-            );
-
-            // 绘制文本
-            ctx.font = `${fontWeight.value} ${fontSize.value}px ${fontFamily.value}`;
-            ctx.fillStyle = fontColor.value;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-
-            // 按中心原点绘制文本
-            ctx.fillText(text.value, xOffset.value, -yOffset.value);
-
-            canvas.toBlob((blob) => {
-                const item = new ClipboardItem({ "image/png": blob });
-                navigator.clipboard.write([item]).then(
-                    () => alert("Copied to clipboard!"),
-                    () => alert("Failed to copy!")
-                );
-            });
-        };
-
-        // 保存到相册
-        const saveToGallery = () => {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            const background = document.querySelector(".background");
-
-            // 设置 canvas 的宽高为图片的原始分辨率
-            canvas.width = background.naturalWidth;
-            canvas.height = background.naturalHeight;
-
-            // 设置原点为图片中心
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-
-            // 绘制背景图（相对于中心原点）
-            ctx.drawImage(
-                background,
-                -canvas.width / 2,
-                -canvas.height / 2,
-                canvas.width,
-                canvas.height
-            );
-
-            // 绘制文本
-            ctx.font = `${fontWeight.value} ${fontSize.value}px ${fontFamily.value}`;
-            ctx.fillStyle = fontColor.value;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-
-            // 按中心原点绘制文本
-            ctx.fillText(text.value, xOffset.value, -yOffset.value);
-
-            const link = document.createElement("a");
-            link.download = "meme.png";
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-        };
-
-        // 加载保存的设置
         const loadSettings = () => {
             const savedSettings = JSON.parse(localStorage.getItem("memeSettings"));
             if (savedSettings) {
@@ -245,7 +241,6 @@ export default {
             }
         };
 
-        // 保存设置
         const saveSettings = () => {
             const settings = {
                 rotate: rotate.value,
@@ -262,34 +257,42 @@ export default {
             localStorage.setItem("memeSettings", JSON.stringify(settings));
         };
 
-        // 加载设置时调用
         onMounted(() => {
             loadSettings();
         });
 
         return {
+            imageList,
             imageSrc,
+            isSelectorVisible,
+            updateImage,
+            xOffset,
+            yOffset,
             rotate,
             fontSize,
             spacing,
-            xOffset,
-            yOffset,
             fontWeight,
-            wrapText,
-            text,
             fontFamily,
             fontColor,
+            wrapText,
+            text,
             saveSettings,
-            copyToClipboard,
-            saveToGallery,
             captureScreenshot,
             saveScreenshotToGallery,
+            resetToDefaults,
+            imageSrc,
+            imageStyle,
+            adjustImageSize,
         };
     },
 };
 </script>
 
 <style scoped>
+@import "@/assets/meme-generator.css";
+</style>
+
+<!-- <style scoped>
 .meme-generator {
     display: flex;
     flex-direction: column;
@@ -414,4 +417,4 @@ input[type="range"][orient="vertical"] {
     border-radius: 50%;
     border: none;
 }
-</style>
+</style> -->

@@ -1,0 +1,129 @@
+.meme-generator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    background-color: #1c1c1c;
+    padding: 50px;
+    font-family: Arial, sans-serif;
+    font-size: 1em; /* 字号调小 */
+    font-weight: bold; /* 字体加粗 */
+}
+
+.canvas-and-ycontrol {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.canvas-wrapper {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+}
+
+.canvas {
+    position: relative;
+}
+
+.background {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.text-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    width: 500px;
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 10px; /* 字号调小 */
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px; /* 调整内边距 */
+    font-size: 16px; /* 字号调小 */
+    font-weight: bold; /* 字体加粗 */
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+select {
+    width: 100%;
+    padding: 10px; /* 调整内边距 */
+    font-size: 16px; /* 字号调小 */
+    font-weight: bold; /* 字体加粗 */
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #1c1c1c;
+    color: #fff;
+}
+
+button {
+    padding: 10px 15px; /* 调整内边距 */
+    font-size: 16px; /* 字号调小 */
+    font-weight: bold; /* 字体加粗 */
+    border: none;
+    border-radius: 6px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.y-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.y-control label {
+    margin-bottom: 10px; /* 调整间距 */
+    font-size: 1em; /* 字号调小 */
+    font-weight: bold; /* 字体加粗 */
+}
+
+input[type="range"][orient="vertical"] {
+    -webkit-appearance: slider-vertical;
+    writing-mode: bt-lr;
+    width: 12px; /* 调整宽度 */
+    height: 370px; /* 调整高度 */
+    margin: 0 15px; /* 调整间距 */
+}
+
+.y-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px; /* 更小的滑块 */
+    height: 20px;
+    background: #ff69b4;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+}
+
+.y-control input[type="range"]::-moz-range-thumb {
+    width: 20px; /* 更小的滑块 */
+    height: 20px;
+    background: #ff69b4;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+}
