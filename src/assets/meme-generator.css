@@ -1,130 +1,258 @@
-.meme-generator {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #fff;
-    background-color: #1c1c1c;
-    padding: 50px;
-    font-family: Arial, sans-serif;
-    font-size: 1em; /* 字号调小 */
-    font-weight: bold; /* 字体加粗 */
+/* 手机端样式 */
+@media only screen and (max-width: 800px) {
+    .meme-generator {
+        padding: 20px;
+        font-size: 0.9em; /* 稍微减小字号 */
+    }
+
+    .canvas-and-ycontrol {
+        flex-direction: column;
+        align-items: center;
+        gap: 0px;
+        margin-bottom: -20px;
+        position: relative; /* 为y-control的绝对定位做准备 */
+    }
+
+    .canvas-wrapper {
+        width: 100%;
+    }
+
+    .canvas {
+        width: 100%;
+    }
+
+    .background {
+        width: 100%;
+        height: auto;
+    }
+
+    .text-overlay {
+        transform: translate(-50%, -50%) rotate(0deg); /* 移除旋转以适应紧凑布局 */
+        width: 100%;
+        text-align: center;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .controls > * {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .controls label {
+        flex: 1;
+        margin-right: 10px;
+        font-size: 0.9em;
+    }
+
+    .controls input[type="range"],
+    .controls select,
+    .controls input[type="color"],
+    .controls input[type="text"] {
+        flex: 2;
+        font-size: 14px;
+    }
+
+    input[type="range"] {
+        width: 60%; /* 减小滑杆长度 */
+        margin: 0 auto; /* 居中滑杆 */
+    }
+
+    input[type="text"] {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    select {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    button {
+        /* text-align: center; */
+        padding: 8px 12px;
+        margin-bottom: 5px;
+        font-size: 14px;
+        background-color: #007BFF; /* 使用亮眼的颜色 */
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        /* width: 30%; */
+        /* margin: auto */
+    }
+    
+    button:hover {
+        background-color: #0056b3; /* 悬停效果 */
+    }
+    .y-control {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        flex-direction: row;
+        align-items: center;
+        gap: 5px;
+        background: rgba(28, 28, 28, 0.8);
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .y-control label {
+        margin-bottom: 0;
+        font-size: 0.9em;
+    }
+
+    input[type="range"][orient="vertical"] {
+        -webkit-appearance: slider-vertical;
+        writing-mode: bt-lr;
+        width: 8px; /* 进一步减小宽度 */
+        height: 150px; /* 缩短高度以适应屏幕 */
+        margin: 0;
+    }
+
+    .y-control input[type="range"]::-webkit-slider-thumb,
+    .y-control input[type="range"]::-moz-range-thumb {
+        width: 16px; /* 减小滑块尺寸 */
+        height: 16px;
+    }
 }
 
-.canvas-and-ycontrol {
-    display: flex;
-    align-items: center;
-    gap: 26px; /* 增加y与图片两侧间距 */
-    margin-bottom: 40px;
-}
-
-.canvas-wrapper {
-    display: inline-block;
-    position: relative;
-    overflow: hidden;
-}
-
-.canvas {
-    position: relative;
-}
-
-.background {
-    display: block;
-    max-width: 100%;
-    height: auto;
-}
-
-.text-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.controls {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-    width: 450px;
-}
-
-input[type="range"] {
-    width: 100%;
-    height: 10px; /* 字号调小 */
-}
-
-input[type="text"] {
-    width: 100%;
-    padding: 10px; /* 调整内边距 */
-    font-size: 16px; /* 字号调小 */
-    font-weight: bold; /* 字体加粗 */
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
-
-select {
-    width: 100%;
-    padding: 10px; /* 调整内边距 */
-    font-size: 16px; /* 字号调小 */
-    font-weight: bold; /* 字体加粗 */
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #1c1c1c;
-    color: #fff;
-}
-
-button {
-    padding: 10px 15px; /* 调整内边距 */
-    font-size: 16px; /* 字号调小 */
-    font-weight: bold; /* 字体加粗 */
-    border: none;
-    border-radius: 6px;
-    background-color: #007bff;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-.y-control {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.y-control label {
-    margin-bottom: 10px; /* 调整间距 */
-    font-size: 1em; /* 字号调小 */
-    font-weight: bold; /* 字体加粗 */
-}
-
-input[type="range"][orient="vertical"] {
-    -webkit-appearance: slider-vertical;
-    writing-mode: bt-lr;
-    width: 12px; /* 调整宽度 */
-    height: 370px; /* 调整高度 */
-    margin: 0 15px; /* 调整间距 */
-}
-
-.y-control input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px; /* 更小的滑块 */
-    height: 20px;
-    background: #ff69b4;
-    cursor: pointer;
-    border-radius: 50%;
-    border: none;
-}
-
-.y-control input[type="range"]::-moz-range-thumb {
-    width: 20px; /* 更小的滑块 */
-    height: 20px;
-    background: #ff69b4;
-    cursor: pointer;
-    border-radius: 50%;
-    border: none;
+@media only screen and (min-width: 801px){
+    .meme-generator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #fff;
+        background-color: #1c1c1c;
+        padding: 50px;
+        font-family: Arial, sans-serif;
+        font-size: 1em; /* 字号调小 */
+        font-weight: bold; /* 字体加粗 */
+    }
+    
+    .canvas-and-ycontrol {
+        display: flex;
+        align-items: center;
+        gap: 26px; /* 增加y与图片两侧间距 */
+        margin-bottom: 40px;
+    }
+    
+    .canvas-wrapper {
+        display: inline-block;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .canvas {
+        position: relative;
+    }
+    
+    .background {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .text-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .controls {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        width: 450px;
+    }
+    
+    input[type="range"] {
+        width: 100%;
+        height: 10px; /* 字号调小 */
+    }
+    
+    input[type="text"] {
+        width: 100%;
+        padding: 10px; /* 调整内边距 */
+        font-size: 16px; /* 字号调小 */
+        font-weight: bold; /* 字体加粗 */
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+    
+    select {
+        width: 100%;
+        padding: 10px; /* 调整内边距 */
+        font-size: 16px; /* 字号调小 */
+        font-weight: bold; /* 字体加粗 */
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background-color: #1c1c1c;
+        color: #fff;
+    }
+    
+    button {
+        padding: 10px 15px; /* 调整内边距 */
+        font-size: 16px; /* 字号调小 */
+        font-weight: bold; /* 字体加粗 */
+        border: none;
+        border-radius: 6px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    button:hover {
+        background-color: #0056b3;
+    }
+    
+    .y-control {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .y-control label {
+        margin-bottom: 10px; /* 调整间距 */
+        font-size: 1em; /* 字号调小 */
+        font-weight: bold; /* 字体加粗 */
+    }
+    
+    input[type="range"][orient="vertical"] {
+        -webkit-appearance: slider-vertical;
+        writing-mode: bt-lr;
+        width: 12px; /* 调整宽度 */
+        height: 370px; /* 调整高度 */
+        margin: 0 15px; /* 调整间距 */
+    }
+    
+    .y-control input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px; /* 更小的滑块 */
+        height: 20px;
+        background: #ff69b4;
+        cursor: pointer;
+        border-radius: 50%;
+        border: none;
+    }
+    
+    .y-control input[type="range"]::-moz-range-thumb {
+        width: 20px; /* 更小的滑块 */
+        height: 20px;
+        background: #ff69b4;
+        cursor: pointer;
+        border-radius: 50%;
+        border: none;
+    }
 }

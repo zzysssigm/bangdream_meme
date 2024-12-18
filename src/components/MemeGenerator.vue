@@ -110,26 +110,26 @@ export default {
         const maxHeight = 400; // 最大高度
 
         // 调整图片尺寸（包括等比放大和缩小）
-    const adjustImageSize = (event) => {
-      const img = event.target;
-      const { naturalWidth, naturalHeight } = img;
+        const adjustImageSize = (event) => {
+            const img = event.target;
+            const { naturalWidth, naturalHeight } = img;
 
-      // 计算宽高比例
-      const widthRatio = maxWidth / naturalWidth;
-      const heightRatio = maxHeight / naturalHeight;
+            // 计算宽高比例
+            const widthRatio = maxWidth / naturalWidth;
+            const heightRatio = maxHeight / naturalHeight;
 
-      // 取较小的比例，确保等比缩放
-      const scale = Math.min(widthRatio, heightRatio);
+            // 取较小的比例，确保等比缩放
+            const scale = Math.min(widthRatio, heightRatio);
 
-      // 计算放大后的宽高
-      const newWidth = naturalWidth * scale;
-      const newHeight = naturalHeight * scale;
+            // 计算放大后的宽高
+            const newWidth = naturalWidth * scale;
+            const newHeight = naturalHeight * scale;
 
-      imageStyle.value = {
-        width: `${newWidth}px`,
-        height: `${newHeight}px`,
-      };
-    };
+            imageStyle.value = {
+                width: `${newWidth}px`,
+                height: `${newHeight}px`,
+            };
+        };
 
         // 控制图片选择器显示
         const isSelectorVisible = ref(false);
@@ -139,35 +139,48 @@ export default {
             imageSrc.value = selectedImage;
         };
 
-        // 滑杆和文本相关变量
-        const rotate = ref(0);
-        const fontSize = ref(35);
-        const spacing = ref(0);
-        const xOffset = ref(-110);
-        const yOffset = ref(-100);
-        const fontWeight = ref(600);
-        const wrapText = ref(false);
-        const text = ref("BanGDream!");
+        // 默认配置
+        const defaultSettings = window.matchMedia("(max-width: 800px)").matches
+            ? {
+                rotate: 0,
+                fontSize: 35,
+                spacing: 0,
+                xOffset: 0,
+                yOffset: 50,
+                fontWeight: 600,
+                wrapText: false,
+                text: "BanGDream!",
+                fontFamily: "Microsoft YaHei, sans-serif",
+                fontColor: "#ffffff",
+            }
+            : {
+                rotate: 0,
+                fontSize: 35,
+                spacing: 0,
+                xOffset: -110,
+                yOffset: -100,
+                fontWeight: 600,
+                wrapText: false,
+                text: "BanGDream!",
+                fontFamily: "Microsoft YaHei, sans-serif",
+                fontColor: "#ffffff",
+            };
+
+        const rotate = ref(defaultSettings.rotate);
+        const fontSize = ref(defaultSettings.fontSize);
+        const spacing = ref(defaultSettings.spacing);
+        const xOffset = ref(defaultSettings.xOffset);
+        const yOffset = ref(defaultSettings.yOffset);
+        const fontWeight = ref(defaultSettings.fontWeight);
+        const wrapText = ref(defaultSettings.wrapText);
+        const text = ref(defaultSettings.text);
 
         // 字体选择
-        const fontFamily = ref("Microsoft YaHei, sans-serif");
+        const fontFamily = ref(defaultSettings.fontFamily);
 
         // 字体颜色
-        const fontColor = ref("#ffffff");
+        const fontColor = ref(defaultSettings.fontColor);
 
-        // 默认配置
-        const defaultSettings = {
-            rotate: 0,
-            fontSize: 35,
-            spacing: 0,
-            xOffset: -110,
-            yOffset: -100,
-            fontWeight: 600,
-            wrapText: false,
-            text: "BanGDream!",
-            fontFamily: "Microsoft YaHei, sans-serif",
-            fontColor: "#ffffff",
-        };
 
         // 恢复默认配置
         const resetToDefaults = () => {
@@ -262,6 +275,7 @@ export default {
         });
 
         return {
+            // settings: defaultSettings,
             imageList,
             imageSrc,
             isSelectorVisible,
