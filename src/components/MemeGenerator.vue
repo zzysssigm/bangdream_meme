@@ -26,7 +26,7 @@
 
             <!-- Y轴滑杆 -->
             <div class="y-control">
-                <label for="yOffset">Y Position:</label>
+                <label for="yOffset">文字纵向位置:</label>
                 <input id="yOffset" type="range" v-model="yOffset" min="-250" max="250" orient="vertical"
                     @input="saveSettings" />
             </div>
@@ -42,7 +42,7 @@
             </div>
 
             <div class="control-group">
-                <label for="xOffset">X 位置:</label>
+                <label for="xOffset">文字横向位置:</label>
                 <input id="xOffset" type="range" v-model="xOffset" min="-250" max="250" @input="saveSettings" />
             </div>
 
@@ -133,6 +133,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import html2canvas from "html2canvas";
 import ImageSelector from "@/components/ImageSelector.vue";
+import UPNG from 'upng-js'; // 必须添加到文件顶部
 
 const requireImages = require.context("@/image", false, /\.(png|jpe?g|gif|svg)$/);
 const imageList = requireImages.keys().map((key) => requireImages(key));
@@ -152,8 +153,8 @@ export default {
                 rotate: 0,
                 fontSize: 35,
                 spacing: 0,
-                xOffset: 0,
-                yOffset: 50,
+                xOffset: -100,
+                yOffset: -50,
                 fontWeight: 600,
                 wrapText: false,
                 text: "BanGDream!",
@@ -166,7 +167,7 @@ export default {
                 rotate: 0,
                 fontSize: 35,
                 spacing: 0,
-                xOffset: -110,
+                xOffset: -100,
                 yOffset: -100,
                 fontWeight: 600,
                 wrapText: false,
@@ -191,66 +192,39 @@ export default {
         const fontColor = ref(defaultSettings.fontColor);
         const isSelectorVisible = ref(false);
 
-        // 调整图片尺寸
-        // const adjustImageSize = (event) => {
-        //     const img = event.target;
-        //     const container = img.parentElement;
-            
-        //     // 重置样式
-        //     img.style.width = '';
-        //     img.style.height = '';
-            
-        //     // 获取容器和图片尺寸
-        //     const containerWidth = container.offsetWidth;
-        //     const containerHeight = container.offsetHeight;
-        //     const imgWidth = img.naturalWidth;
-        //     const imgHeight = img.naturalHeight;
-            
-        //     // 计算最佳显示比例
-        //     const widthRatio = containerWidth / imgWidth;
-        //     const heightRatio = containerHeight / imgHeight;
-        //     const scale = Math.min(widthRatio, heightRatio);
-            
-        //     // 应用缩放
-        //     imageStyle.value = {
-        //         width: `${imgWidth * scale}px`,
-        //         height: `${imgHeight * scale}px`,
-        //         objectFit: 'contain'
-        //     };
-        // };
         const adjustImageSize = (event) => {
-    const img = event.target;
-    const container = img.parentElement; // .canvas 元素
-    const canvasWrapper = container.parentElement; // .canvas-wrapper 容器
+            const img = event.target;
+            const container = img.parentElement; // .canvas 元素
+            const canvasWrapper = container.parentElement; // .canvas-wrapper 容器
 
-    // 重置图片样式
-    img.style.width = '';
-    img.style.height = '';
+            // 重置图片样式
+            img.style.width = '';
+            img.style.height = '';
 
-    // 获取容器和图片原始尺寸
-    const containerWidth = container.offsetWidth;
-    const containerHeight = container.offsetHeight;
-    const imgWidth = img.naturalWidth;
-    const imgHeight = img.naturalHeight;
+            // 获取容器和图片原始尺寸
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            const imgWidth = img.naturalWidth;
+            const imgHeight = img.naturalHeight;
 
-    // 计算最佳缩放比例（使用 cover 模式填满容器）
-    const scale = Math.max(containerWidth / imgWidth, containerHeight / imgHeight);
-    const scaledWidth = imgWidth * scale;
-    const scaledHeight = imgHeight * scale;
+            // 计算最佳缩放比例（使用 cover 模式填满容器）
+            const scale = Math.max(containerWidth / imgWidth, containerHeight / imgHeight);
+            const scaledWidth = imgWidth * scale;
+            const scaledHeight = imgHeight * scale;
 
-    // 设置图片样式
-    imageStyle.value = {
-        width: `${scaledWidth}px`,
-        height: `${scaledHeight}px`,
-        objectFit: 'cover' // 改为 cover 模式填满容器
-    };
+            // 设置图片样式
+            imageStyle.value = {
+                width: `${scaledWidth}px`,
+                height: `${scaledHeight}px`,
+                objectFit: 'cover' // 改为 cover 模式填满容器
+            };
 
-    // 同步调整容器尺寸
-    container.style.width = `${scaledWidth}px`;
-    container.style.height = `${scaledHeight}px`;
-    canvasWrapper.style.width = `${scaledWidth}px`;
-    canvasWrapper.style.height = `${scaledHeight}px`;
-};
+            // 同步调整容器尺寸
+            container.style.width = `${scaledWidth}px`;
+            container.style.height = `${scaledHeight}px`;
+            canvasWrapper.style.width = `${scaledWidth}px`;
+            canvasWrapper.style.height = `${scaledHeight}px`;
+        };
 
         // 更新选中的图片
         const updateImage = (selectedImage) => {
@@ -278,13 +252,13 @@ export default {
         // 计算智能换行后的文本
         const smartWrappedText = computed(() => {
             if (!wrapText.value || !text.value) return text.value;
-            
+
             const str = text.value;
             if (str.includes('\n')) return str;
-            
+
             const midIndex = Math.floor(str.length / 2);
             let breakPos = midIndex;
-            
+
             // 向右查找非标点位置
             for (let i = midIndex; i < Math.min(midIndex + 5, str.length); i++) {
                 if (!isPunctuation(str[i])) {
@@ -292,7 +266,7 @@ export default {
                     break;
                 }
             }
-            
+
             // 向左查找
             if (breakPos === midIndex) {
                 for (let i = midIndex; i >= Math.max(0, midIndex - 5); i--) {
@@ -302,247 +276,172 @@ export default {
                     }
                 }
             }
-            
+
             return str.substring(0, breakPos) + '\n' + str.substring(breakPos);
         });
 
-    //     // 截图功能
-    //     const captureScreenshot = async () => {
-    //         isCapturing.value = true;
-    // const canvasWrapper = document.querySelector(".canvas-wrapper");
-    
-    // try {
-    //     const canvas = await html2canvas(canvasWrapper, {
-    //         useCORS: true,
-    //         backgroundColor: null, // 透明背景
-    //         scale: 2,
-    //         logging: false,
-    //         allowTaint: true,
-    //         onclone: (clonedDoc) => {
-    //             // 确保克隆节点样式正确
-    //             const elements = clonedDoc.querySelectorAll('.canvas-wrapper, .canvas, .background');
-    //             elements.forEach(el => {
-    //                 el.style.background = 'transparent';
-    //                 el.style.padding = '0';
-    //                 el.style.margin = '0';
-    //                 el.style.border = 'none';
-    //             });
-    //         }
-    //     });
+        // 新增图片压缩方法
+        const compressImage = async (canvas, maxSize = 1000000) => {
+            let quality = 0.9;
+            let blob = await new Promise(resolve =>
+                canvas.toBlob(resolve, 'image/jpeg', quality)
+            );
 
-    //             canvas.toBlob((blob) => {
-    //                 const item = new ClipboardItem({ "image/png": blob });
-    //                 navigator.clipboard.write([item]).then(
-    //                     () => alert("截图已复制！"),
-    //                     () => alert("复制失败")
-    //                 );
-    //             }, 'image/png');
-    //         } catch (error) {
-    //             console.error("截图失败:", error);
-    //             alert("截图失败，请重试");
-    //         } finally {
-    //             isCapturing.value = false;
-    //         }
-    //     };
-
-    //     // 保存到相册
-    //     const saveScreenshotToGallery = async () => {
-    //         isCapturing.value = true;
-    //         const canvasWrapper = document.querySelector(".canvas-wrapper");
-            
-    //         try {
-    //             const canvas = await html2canvas(canvasWrapper, {
-    //                 useCORS: true,
-    //                 backgroundColor: null,
-    //                 scale: 2,
-    //                 onclone: (clonedDoc) => {
-    //                     const elements = [
-    //                         ...clonedDoc.querySelectorAll('.canvas-wrapper, .canvas, .background')
-    //                     ];
-    //                     elements.forEach(el => {
-    //                         el.style.background = 'transparent';
-    //                         el.style.padding = '0';
-    //                         el.style.margin = '0';
-    //                     });
-    //                 }
-    //             });
-
-    //             const link = document.createElement("a");
-    //             link.download = `meme-${new Date().getTime()}.png`;
-    //             link.href = canvas.toDataURL("image/png");
-    //             document.body.appendChild(link);
-    //             link.click();
-    //             document.body.removeChild(link);
-    //         } catch (error) {
-    //             console.error("保存失败:", error);
-    //             alert("保存失败，请重试");
-    //         } finally {
-    //             isCapturing.value = false;
-    //         }
-    //     };
-
-    // 新增图片压缩方法
-    const compressImage = async (canvas, maxSize = 1000000) => {
-  let quality = 0.9;
-  let blob = await new Promise(resolve => 
-    canvas.toBlob(resolve, 'image/jpeg', quality)
-  );
-  
-  while (blob.size > maxSize && quality > 0.4) {
-    quality -= 0.1;
-    blob = await new Promise(resolve => 
-      canvas.toBlob(resolve, 'image/jpeg', quality)
-    );
-  }
-  
-  if (blob.size > maxSize) {
-    const scale = Math.sqrt(maxSize / blob.size);
-    const resizedCanvas = document.createElement('canvas');
-    resizedCanvas.width = canvas.width * scale;
-    resizedCanvas.height = canvas.height * scale;
-    const ctx = resizedCanvas.getContext('2d');
-    ctx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
-    blob = await new Promise(resolve => 
-      resizedCanvas.toBlob(resolve, 'image/jpeg', 0.8)
-    );
-  }
-  
-  return blob;
-};
-    // 通用的截图配置
-    const getCanvasConfig = () => ({
-    useCORS: true,
-    backgroundColor: null,
-    scale: window.devicePixelRatio * 2,
-    logging: false,
-    allowTaint: true,
-    // 移除可能干扰的ignoreElements配置
-    onclone: (clonedDoc, originalElement) => {
-        // 确保使用克隆文档进行查找
-        const wrapper = clonedDoc.querySelector('.canvas-wrapper');
-        const canvas = clonedDoc.querySelector('.canvas');
-        const background = clonedDoc.querySelector('.background');
-
-        // 防御性检查
-        if (!wrapper || !canvas || !background) {
-            console.error('克隆元素缺失:', { wrapper, canvas, background });
-            return;
-        }
-
-        // 同步原始元素的尺寸到克隆元素
-        const originalWrapper = originalElement.querySelector('.canvas-wrapper');
-        if (originalWrapper) {
-            wrapper.style.width = `${originalWrapper.offsetWidth}px`;
-            wrapper.style.height = `${originalWrapper.offsetHeight}px`;
-        }
-
-        // 强制应用必要样式
-        [wrapper, canvas, background].forEach(el => {
-            el.style.background = 'transparent';
-            el.style.padding = '0';
-            el.style.margin = '0';
-            el.style.border = 'none';
-            el.style.boxSizing = 'border-box';
-        });
-
-        // 添加调试边界（正式环境可移除）
-        // wrapper.style.border = '1px dashed #ff0000';
-    }
-});
-
-// 统一的截图执行函数
-const executeScreenshot = async (isSaveAction = false) => {
-    isCapturing.value = true;
-    try {
-        // 使用更可靠的元素获取方式
-        const originalWrapper = document.querySelector('.canvas-wrapper');
-        if (!originalWrapper) {
-            throw new Error('无法找到画布容器');
-        }
-
-        // 等待下一个事件循环确保DOM更新
-        await new Promise(resolve => setTimeout(resolve, 50));
-
-        const canvas = await html2canvas(originalWrapper, {
-            ...getCanvasConfig(),
-            windowWidth: originalWrapper.scrollWidth * (isSaveAction ? 2 : 1),
-            windowHeight: originalWrapper.scrollHeight * (isSaveAction ? 2 : 1),
-            // 添加异步加载等待
-            async: true,
-            // 增强渲染等待
-            imageTimeout: 10000,
-            proxy: {
-                enable: true,
-                timeout: 30000
+            while (blob.size > maxSize && quality > 0.4) {
+                quality -= 0.1;
+                blob = await new Promise(resolve =>
+                    canvas.toBlob(resolve, 'image/jpeg', quality)
+                );
             }
-        });
 
-        return canvas;
-    } catch (error) {
-        console.error('截图核心错误:', error);
-        throw error;
-    } finally {
-        isCapturing.value = false;
-    }
-};
+            if (blob.size > maxSize) {
+                const scale = Math.sqrt(maxSize / blob.size);
+                const resizedCanvas = document.createElement('canvas');
+                resizedCanvas.width = canvas.width * scale;
+                resizedCanvas.height = canvas.height * scale;
+                const ctx = resizedCanvas.getContext('2d');
+                ctx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+                blob = await new Promise(resolve =>
+                    resizedCanvas.toBlob(resolve, 'image/jpeg', 0.8)
+                );
+            }
 
-// 修改后的截图方法
-// const captureScreenshot = async () => {
-//     try {
-//         const canvas = await executeScreenshot();
-//         const blob = await compressImage(canvas);
-        
-//         navigator.clipboard.write([
-//             // new ClipboardItem({ 'image/png': blob })
-//             new ClipboardItem({ 'image/jpeg': blob })
-//         ]).then(() => {
-//             alert("截图已复制到剪贴板！");
-//         });
-//     } catch (error) {
-//         alert(`截图失败: ${error.message}`);
-//     }
-// };
-const captureScreenshot = async () => {
-    try {
-        const canvas = await executeScreenshot();
-        
-        // 直接生成PNG格式
-        canvas.toBlob(async (pngBlob) => {
+            return blob;
+        };
+
+        const compressImage_png = async (canvas) => {
             try {
-                await navigator.clipboard.write([
-                    new ClipboardItem({ 'image/png': pngBlob })
-                ]);
-                alert("截图已复制到剪贴板！");
+                // 获取原始图像数据
+                const ctx = canvas.getContext('2d');
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                // 使用UPNG进行无损压缩
+                const compressed = UPNG.encode(
+                    [imageData.data.buffer], // 图像数据
+                    canvas.width,
+                    canvas.height,
+                    256 // 颜色位数（0-256）
+                );
+
+                return new Blob([compressed], { type: 'image/png' });
             } catch (error) {
-                console.error('剪贴板写入失败:', error);
-                alert('复制失败，请尝试右键另存图片');
+                console.error('压缩失败:', error);
+                throw new Error('图片优化失败');
             }
-        }, 'image/png');
-    } catch (error) {
-        alert(`截图失败: ${error.message}`);
-    }
-};
-// 修改后的保存方法
-const saveScreenshotToGallery = async () => {
-    try {
-        const canvas = await executeScreenshot(true);
-        const blob = await compressImage(canvas);
-        
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `meme-${Date.now()}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }, 1000);
-    } catch (error) {
-        alert(`保存失败: ${error.message}`);
-    }
-};
+        };
+        // 通用的截图配置
+        const getCanvasConfig = () => ({
+            useCORS: true,
+            backgroundColor: null,
+            scale: window.devicePixelRatio * 2,
+            logging: false,
+            allowTaint: true,
+            // 移除可能干扰的ignoreElements配置
+            onclone: (clonedDoc, originalElement) => {
+                // 确保使用克隆文档进行查找
+                const wrapper = clonedDoc.querySelector('.canvas-wrapper');
+                const canvas = clonedDoc.querySelector('.canvas');
+                const background = clonedDoc.querySelector('.background');
+
+                // 防御性检查
+                if (!wrapper || !canvas || !background) {
+                    console.error('克隆元素缺失:', { wrapper, canvas, background });
+                    return;
+                }
+
+                // 同步原始元素的尺寸到克隆元素
+                const originalWrapper = originalElement.querySelector('.canvas-wrapper');
+                if (originalWrapper) {
+                    wrapper.style.width = `${originalWrapper.offsetWidth}px`;
+                    wrapper.style.height = `${originalWrapper.offsetHeight}px`;
+                }
+
+                // 强制应用必要样式
+                [wrapper, canvas, background].forEach(el => {
+                    el.style.background = 'transparent';
+                    el.style.padding = '0';
+                    el.style.margin = '0';
+                    el.style.border = 'none';
+                    el.style.boxSizing = 'border-box';
+                });
+
+                // 添加调试边界（正式环境可移除）
+                // wrapper.style.border = '1px dashed #ff0000';
+            }
+        });
+
+        // 统一的截图执行函数
+        const executeScreenshot = async (isSaveAction = false) => {
+            isCapturing.value = true;
+            try {
+                // 使用更可靠的元素获取方式
+                const originalWrapper = document.querySelector('.canvas-wrapper');
+                if (!originalWrapper) {
+                    throw new Error('无法找到画布容器');
+                }
+
+                // 等待下一个事件循环确保DOM更新
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                const canvas = await html2canvas(originalWrapper, {
+                    ...getCanvasConfig(),
+                    windowWidth: originalWrapper.scrollWidth * (isSaveAction ? 2 : 1),
+                    windowHeight: originalWrapper.scrollHeight * (isSaveAction ? 2 : 1),
+                    // 添加异步加载等待
+                    async: true,
+                    // 增强渲染等待
+                    imageTimeout: 10000,
+                    proxy: {
+                        enable: true,
+                        timeout: 30000
+                    }
+                });
+
+                return canvas;
+            } catch (error) {
+                console.error('截图核心错误:', error);
+                throw error;
+            } finally {
+                isCapturing.value = false;
+            }
+        };
+
+        // 4. 修改截图方法
+        const captureScreenshot = async () => {
+            try {
+                const canvas = await executeScreenshot();
+                const blob = await compressImage_png(canvas);
+
+                await navigator.clipboard.write([
+                    new ClipboardItem({ 'image/png': blob })
+                ]);
+                alert('截图已复制，但当前版本会出现bug，建议使用本地保存！');
+            } catch (error) {
+                console.error('复制失败:', error);
+                alert(`操作失败: ${error.message}`);
+            }
+        };
+        // 修改后的保存方法
+        const saveScreenshotToGallery = async () => {
+            try {
+                const canvas = await executeScreenshot(true);
+                const blob = await compressImage(canvas);
+
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `meme-${Date.now()}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }, 1000);
+            } catch (error) {
+                alert(`保存失败: ${error.message}`);
+            }
+        };
 
         // 恢复默认配置
         const resetToDefaults = () => {
@@ -636,7 +535,6 @@ const saveScreenshotToGallery = async () => {
 </script>
 
 <style scoped>
-
 /* @media (max-width: 800px) {
     .meme-generator {
         padding: 15px;
@@ -670,6 +568,7 @@ const saveScreenshotToGallery = async () => {
     }
 } */
 @media (max-width: 800px) {
+
     /* 核心容器优化 */
     .canvas-wrapper {
         width: auto !important;
@@ -677,7 +576,8 @@ const saveScreenshotToGallery = async () => {
         display: inline-block;
         background: transparent;
         margin: 0 auto;
-        line-height: 0; /* 消除图片底部间隙 */
+        line-height: 0;
+        /* 消除图片底部间隙 */
     }
 
     /* 画布尺寸控制 */
@@ -730,7 +630,8 @@ const saveScreenshotToGallery = async () => {
     }
 
     /* 统一输入控件样式 */
-    input[type="text"], select {
+    input[type="text"],
+    select {
         font-size: 16px !important;
         padding: 12px !important;
     }
@@ -749,45 +650,60 @@ const saveScreenshotToGallery = async () => {
         z-index: 3;
     }
 
-  /* 统一字体 */
-  .meme-generator, 
-  input[type="text"], 
-  select, 
-  button {
-    font-family: Arial, sans-serif;
-    font-size: 0.95em;  /* 与PC端字号同步 */
-  }
+    /* 统一字体 */
+    .meme-generator,
+    input[type="text"],
+    select,
+    button {
+        font-family: Arial, sans-serif;
+        font-size: 0.95em;
+        /* 与PC端字号同步 */
+    }
 
-  /* 输入框颜色 & 圆角 */
-  input[type="text"], 
-  select {
-    border: 1px solid #444 !important;     /* PC端边框色 */
-    border-radius: 6px !important;          /* PC端圆角值 */
-    background-color: #333 !important;      /* PC端背景色 */
-    color: #fff !important;                 /* 文字色同步 */
-    height: 12px;
-  }
+    /* 输入框颜色 & 圆角 */
+    input[type="text"],
+    select {
+        border: 1px solid #444 !important;
+        /* PC端边框色 */
+        border-radius: 6px !important;
+        /* PC端圆角值 */
+        background-color: #333 !important;
+        /* PC端背景色 */
+        color: #fff !important;
+        /* 文字色同步 */
+        height: 12px;
+    }
 
-  /* 滑杆颜色风格 */
-  input[type="range"] {
-    background: #444 !important;            /* 轨道背景色 */
-    border-radius: 4px !important;          /* 轨道圆角 */
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    background: #ff69b4 !important;         /* 滑块颜色 */
-    width: 18px !important;                 /* 滑块尺寸 */
-    height: 18px !important;
-  }
+    /* 滑杆颜色风格 */
+    input[type="range"] {
+        background: #444 !important;
+        /* 轨道背景色 */
+        border-radius: 4px !important;
+        /* 轨道圆角 */
+    }
 
-  /* 按钮视觉同步 */
-   button {
-    background-color: #ff69b4 !important;  /* 品牌粉色 */
-    border-radius: 6px !important;          /* 统一圆角 */
-    color: #fff !important;                 /* 文字颜色 */
-    font-weight: bold !important;           /* 加粗字体 */
-    margin: 7px;
-  }
-  input[type="text"] {
+    input[type="range"]::-webkit-slider-thumb {
+        background: #ff69b4 !important;
+        /* 滑块颜色 */
+        width: 18px !important;
+        /* 滑块尺寸 */
+        height: 18px !important;
+    }
+
+    /* 按钮视觉同步 */
+    button {
+        background-color: #ff69b4 !important;
+        /* 品牌粉色 */
+        border-radius: 6px !important;
+        /* 统一圆角 */
+        color: #fff !important;
+        /* 文字颜色 */
+        font-weight: bold !important;
+        /* 加粗字体 */
+        margin: 7px;
+    }
+
+    input[type="text"] {
         width: 70%;
         padding: 10px 12px;
         font-size: 0.95em;
@@ -813,11 +729,14 @@ const saveScreenshotToGallery = async () => {
         font-size: 0.95em;
         font-weight: bold;
         /* 修改以下属性使背景覆盖全屏 */
-        min-height: 100vh;  /* 确保至少覆盖整个视口高度 */
-        width: 100%;        /* 覆盖整个宽度 */
-        box-sizing: border-box; /* 包含padding在内的宽度计算 */
+        min-height: 100vh;
+        /* 确保至少覆盖整个视口高度 */
+        width: 100%;
+        /* 覆盖整个宽度 */
+        box-sizing: border-box;
+        /* 包含padding在内的宽度计算 */
     }
-    
+
     .canvas-and-ycontrol {
         display: flex;
         align-items: center;
@@ -826,7 +745,7 @@ const saveScreenshotToGallery = async () => {
         width: 100%;
         justify-content: center;
     }
-    
+
     .canvas-wrapper {
         display: inline-block;
         position: relative;
@@ -834,19 +753,19 @@ const saveScreenshotToGallery = async () => {
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
-    
+
     .canvas {
         position: relative;
         background-color: #2a2a2a;
     }
-    
+
     .background {
         display: block;
         max-width: 100%;
         height: auto;
         border-radius: 6px;
     }
-    
+
     .text-overlay {
         position: absolute;
         top: 50%;
@@ -854,7 +773,7 @@ const saveScreenshotToGallery = async () => {
         transform: translate(-50%, -50%);
         text-align: center;
     }
-    
+
     .main-controls {
         display: flex;
         flex-direction: column;
@@ -865,19 +784,19 @@ const saveScreenshotToGallery = async () => {
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
-    
+
     .control-group {
         display: flex;
         flex-direction: column;
         gap: 8px;
         width: 100%;
     }
-    
+
     .control-group label {
         color: #e0e0e0;
         font-size: 0.95em;
     }
-    
+
     input[type="range"] {
         width: 100%;
         height: 8px;
@@ -885,7 +804,7 @@ const saveScreenshotToGallery = async () => {
         border-radius: 4px;
         outline: none;
     }
-    
+
     input[type="range"]::-webkit-slider-thumb {
         -webkit-appearance: none;
         width: 18px;
@@ -894,7 +813,7 @@ const saveScreenshotToGallery = async () => {
         border-radius: 50%;
         cursor: pointer;
     }
-    
+
     input[type="text"] {
         width: 100%;
         padding: 10px 12px;
@@ -906,11 +825,11 @@ const saveScreenshotToGallery = async () => {
         color: #fff;
         outline: none;
     }
-    
+
     input[type="text"]:focus {
         border-color: #ff69b4;
     }
-    
+
     select {
         width: 100%;
         padding: 10px 12px;
@@ -923,11 +842,11 @@ const saveScreenshotToGallery = async () => {
         outline: none;
         cursor: pointer;
     }
-    
+
     select:focus {
         border-color: #ff69b4;
     }
-    
+
     button {
         padding: 10px 15px;
         font-size: 0.95em;
@@ -939,34 +858,34 @@ const saveScreenshotToGallery = async () => {
         cursor: pointer;
         transition: all 0.3s ease;
     }
-    
+
     button:hover {
         background-color: #ff4785;
         transform: translateY(-2px);
     }
-    
+
     .toggle-advanced {
         margin: 10px 0;
         background-color: #444;
         color: #e0e0e0;
     }
-    
+
     .toggle-advanced:hover {
         background-color: #555;
     }
-    
+
     .y-control {
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 15px;
     }
-    
+
     .y-control label {
         color: #e0e0e0;
         font-size: 0.95em;
     }
-    
+
     input[type="range"][orient="vertical"] {
         -webkit-appearance: slider-vertical;
         writing-mode: bt-lr;
@@ -975,13 +894,13 @@ const saveScreenshotToGallery = async () => {
         margin: 0 15px;
         background: #444;
     }
-    
+
     .y-control input[type="range"]::-webkit-slider-thumb {
         width: 18px;
         height: 18px;
         background: #ff69b4;
     }
-    
+
     .advanced-controls {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -991,17 +910,17 @@ const saveScreenshotToGallery = async () => {
         border-radius: 8px;
         margin-top: 10px;
     }
-    
+
     .action-buttons {
         display: flex;
         gap: 12px;
         margin-top: 15px;
     }
-    
+
     .action-buttons button {
         flex: 1;
     }
-    
+
     input[type="color"] {
         width: 100%;
         height: 36px;
@@ -1010,7 +929,7 @@ const saveScreenshotToGallery = async () => {
         background: #333;
         cursor: pointer;
     }
-    
+
     input[type="checkbox"] {
         width: 18px;
         height: 18px;
@@ -1020,12 +939,15 @@ const saveScreenshotToGallery = async () => {
 
     .text-overlay span {
         display: inline-block;
-        white-space: pre-line; /* 保留手动换行 */
-        line-height: 1.2; /* 调整行高 */
+        white-space: pre-line;
+        /* 保留手动换行 */
+        line-height: 1.2;
+        /* 调整行高 */
     }
-    
+
     .canvas {
-        white-space: pre-wrap; /* 保留换行符 */
+        white-space: pre-wrap;
+        /* 保留换行符 */
     }
 }
 
@@ -1034,22 +956,22 @@ const saveScreenshotToGallery = async () => {
     .meme-generator {
         padding: 20px;
     }
-    
+
     .canvas-and-ycontrol {
         flex-direction: column;
     }
-    
+
     .y-control {
         flex-direction: row;
         margin-top: 20px;
     }
-    
+
     input[type="range"][orient="vertical"] {
         height: 10px;
         width: 200px;
         writing-mode: horizontal-tb;
     }
-    
+
     .advanced-controls {
         grid-template-columns: 1fr;
     }

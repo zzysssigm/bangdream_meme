@@ -10,6 +10,7 @@
   "dependencies": {
     "core-js": "^3.8.3",
     "html2canvas": "^1.4.1",
+    "upng-js": "^2.1.0",
     "vue": "^3.2.13",
     "vue-meta": "^2.4.0",
     "vue-router": "^4.5.0"
