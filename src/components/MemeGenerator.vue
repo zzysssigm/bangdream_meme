@@ -334,7 +334,7 @@ export default {
         const getCanvasConfig = () => ({
             useCORS: true,
             backgroundColor: null,
-            scale: window.devicePixelRatio * 2,
+            scale: window.devicePixelRatio * 3,
             logging: false,
             allowTaint: true,
             // 移除可能干扰的ignoreElements配置
@@ -536,38 +536,6 @@ export default {
 </script>
 
 <style scoped>
-/* @media (max-width: 800px) {
-    .meme-generator {
-        padding: 15px;
-    }
-    
-    .canvas-and-ycontrol {
-        flex-direction: column;
-    }
-    
-    .y-control {
-        position: absolute;
-        right: 10px;
-        top: 10px;
-        background-color: rgba(40, 40, 40, 0.8);
-        padding: 8px;
-        border-radius: 8px;
-        flex-direction: row;
-    }
-    
-    input[type="range"][orient="vertical"] {
-        height: 120px;
-        width: 8px;
-    }
-    
-    .advanced-controls {
-        grid-template-columns: 1fr;
-    }
-    
-    .action-buttons button {
-        flex: 1 1 100%;
-    }
-} */
 @media (max-width: 800px) {
 
     /* 核心容器优化 */
@@ -638,18 +606,7 @@ export default {
     }
 
     /* 截图容器边界处理 */
-    .canvas-wrapper::after {
-        content: "";
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        border: 1px solid rgb(10, 10, 10);
-        pointer-events: none;
-        z-index: 3;
-    }
+    
 
     /* 统一字体 */
     .meme-generator,
