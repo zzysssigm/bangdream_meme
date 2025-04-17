@@ -4,6 +4,18 @@
     <div class="modal">
       <h3>选择表情包</h3>
       
+      <!-- 文件上传按钮 -->
+      <div class="upload-section">
+        <input 
+          type="file" 
+          id="image-upload" 
+          accept="image/*" 
+          @change="handleFileUpload"
+          style="display: none"
+        >
+        <label for="image-upload" class="upload-btn">上传本地图片</label>
+      </div>
+      
       <!-- 图片网格 -->
       <div class="image-grid">
         <img
@@ -44,16 +56,14 @@ export default {
   emits: ["close", "select"],
   data() {
     return {
-      currentPage: 1, // 当前页
-      imagesPerPage: 6, // 每页显示图片数量
+      currentPage: 1,
+      imagesPerPage: 6,
     };
   },
   computed: {
-    // 总页数
     totalPages() {
       return Math.ceil(this.images.length / this.imagesPerPage);
     },
-    // 当前页显示的图片
     pagedImages() {
       const startIndex = (this.currentPage - 1) * this.imagesPerPage;
       const endIndex = startIndex + this.imagesPerPage;
@@ -68,23 +78,61 @@ export default {
       this.$emit("select", img);
       this.close();
     },
-    // 上一页
     prevPage() {
       if (this.currentPage > 1) {
         this.currentPage -= 1;
       }
     },
-    // 下一页
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage += 1;
       }
     },
+    // 修改后的文件上传处理方法
+    handleFileUpload(event) {
+      const files = event.target.files;
+      if (files.length === 0) return;
+      
+      const file = files[0];
+      if (!file.type.match('image.*')) {
+        alert('请选择图片文件');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        // 直接触发选择并关闭选择器
+        this.$emit("select", e.target.result);
+        this.close();
+        // 重置文件输入
+        event.target.value = '';
+      };
+      reader.readAsDataURL(file);
+    }
   },
 };
 </script>
 
 <style scoped>
+/* 原有样式保持不变 */
+.upload-section {
+  margin-bottom: 20px;
+}
+
+.upload-btn {
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #28a745;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.upload-btn:hover {
+  background-color: #218838;
+}
+
 .image-selector {
   position: fixed;
   top: 0;

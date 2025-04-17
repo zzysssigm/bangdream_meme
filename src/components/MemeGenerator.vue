@@ -27,7 +27,7 @@
             <!-- Y轴滑杆 -->
             <div class="y-control">
                 <label for="yOffset">文字纵向位置:</label>
-                <input id="yOffset" type="range" v-model="yOffset" min="-250" max="250" orient="vertical"
+                <input id="yOffset" type="range" v-model="yOffset" min="-350" max="350" orient="vertical"
                     @input="saveSettings" />
             </div>
         </div>
@@ -43,7 +43,7 @@
 
             <div class="control-group">
                 <label for="xOffset">文字横向位置:</label>
-                <input id="xOffset" type="range" v-model="xOffset" min="-250" max="250" @input="saveSettings" />
+                <input id="xOffset" type="range" v-model="xOffset" min="-350" max="350" @input="saveSettings" />
             </div>
 
             <div class="control-group">
@@ -87,6 +87,7 @@
                 <div class="control-group">
                     <label for="fontFamily">字体:</label>
                     <select id="fontFamily" v-model="fontFamily" @change="saveSettings">
+                        <option value="'XiMai', sans-serif">喜鹊招牌体(核心科技)</option>
                         <option value="Arial, sans-serif">Arial</option>
                         <option value="'Courier New', Courier, monospace">Courier New</option>
                         <option value="'Times New Roman', Times, serif">Times New Roman</option>
@@ -158,7 +159,7 @@ export default {
                 fontWeight: 600,
                 wrapText: false,
                 text: "BanGDream!",
-                fontFamily: "Microsoft YaHei, sans-serif",
+                fontFamily: "'XiMai', sans-serif",
                 fontColor: "#ffffff",
                 borderSize: 1,
                 borderColor: "#000000"
@@ -172,7 +173,7 @@ export default {
                 fontWeight: 600,
                 wrapText: false,
                 text: "BanGDream!",
-                fontFamily: "Microsoft YaHei, sans-serif",
+                fontFamily: "'XiMai', sans-serif",
                 fontColor: "#ffffff",
                 borderSize: 1,
                 borderColor: "#000000"
@@ -415,7 +416,7 @@ export default {
                 await navigator.clipboard.write([
                     new ClipboardItem({ 'image/png': blob })
                 ]);
-                alert('截图已复制，但当前版本会出现bug，建议使用本地保存！');
+                alert('当前复制到剪切板会出现bug，建议使用本地保存！');
             } catch (error) {
                 console.error('复制失败:', error);
                 alert(`操作失败: ${error.message}`);
