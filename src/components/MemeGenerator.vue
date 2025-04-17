@@ -604,10 +604,7 @@ export default {
         font-size: 16px !important;
         padding: 12px !important;
     }
-
-    /* 截图容器边界处理 */
     
-
     /* 统一字体 */
     .meme-generator,
     input[type="text"],
